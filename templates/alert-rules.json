@@ -3,29 +3,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "environmentTag": {
-            "type": "string"
-        },
-        "parentBusinessTag": {
-            "type": "string"
-        },
-        "portfolioTag": {
-            "type": "string"
-        },
-        "productTag": {
-            "type": "string"
-        },
-        "serviceTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
-        "serviceLineTag": {
-            "type": "string"
-        },
-        "serviceOfferingTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
         "enabled": {
             "type": "bool",
             "defaultValue": true
@@ -130,15 +107,7 @@
             "type": "Microsoft.Insights/metricAlerts",
             "apiVersion": "2018-03-01",
             "location": "global",
-            "tags": {
-                "Environment": "[parameters('environmentTag')]",
-                "Parent Business": "[parameters('parentBusinessTag')]",
-                "Portfolio": "[parameters('portfolioTag')]",
-                "Product": "[parameters('productTag')]",
-                "Service": "[parameters('serviceTag')]",
-                "Service Line": "[parameters('serviceLineTag')]",
-                "Service Offering": "[parameters('serviceOfferingTag')]"
-            },
+            "tags": {},
             "properties": {
                 "description": "[concat('Alert for metric ', parameters('metricName'))]",
                 "severity": "[parameters('alertSeverity')]",

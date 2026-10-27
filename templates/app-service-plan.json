@@ -2,34 +2,15 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentTag": {
-        "type": "string"
-    },
-    "parentBusinessTag": {
-        "type": "string"
-    },
-    "portfolioTag": {
-        "type": "string"
-    },
-    "productTag": {
-        "type": "string"
-    },
-    "serviceTag": {
-      "type": "string",
-      "defaultValue": "[parameters('productTag')]"
-    },
-    "serviceLineTag": {
-        "type": "string"
-    },
-    "serviceOfferingTag": {
-      "type": "string",
-      "defaultValue": "[parameters('productTag')]"
-    },
     "appServicePlanName": {
       "type": "string"
     },
     "aspLocation": {
       "type": "string",
+      "allowedValues": [
+        "North Europe",
+        "West Europe"
+      ],
       "defaultValue": "West Europe"
     },
     "aseHostingEnvironmentName": {
@@ -43,7 +24,6 @@
     "aspSize": {
       "type": "string",
       "allowedValues": [
-        "0",
         "1",
         "2",
         "3"
@@ -78,35 +58,6 @@
         "PremiumV3"
       ],
       "defaultValue": "Standard"
-    },
-    "settingName": {
-      "type": "String",
-      "defaultvalue": "AppServicePlanDiagSettings",
-      "metadata": {
-        "description": "The name of the diagnostic setting"
-      }
-    },
-    "workspaceId": {
-      "type": "String",
-      "defaultValue": "",
-      "metadata": {
-        "description": "ResourceID of the Log Analytics workspace in which resource logs should be saved."
-      }
-    },
-    "allMetricsSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-        "description": "All Metrics diagnostic setting"
-      }
-    },
-    "retentionPolicyEnabled": {
-      "type": "bool",
-      "defaultValue": true
-    },
-    "retentionPolicyDays": {
-      "type": "string",
-      "defaultValue": "30"
     }
   },
   "variables": {
@@ -123,7 +74,7 @@
         "reserved": "[equals(parameters('appServicePlanKind'), 'linux')]"
       }
     },
-    "aspSkuName": "[concat(take(parameters('nonASETier'), 1), parameters('aspSize'), if(equals(parameters('nonASETier'), 'PremiumV3'), 'v3', if(equals(parameters('nonASETier'), 'PremiumV2'), 'v2', '')))]",
+    "aspSkuName": "[concat(take(parameters('nonASETier'), 1), parameters('aspSize'), if(equals(parameters('nonASETier'), 'PremiumV2'), 'v2', ''))]",
     "defaultAppServicePlanSKUs": {
       "NonASE": {
         "name": "[variables('aspSkuName')]",
@@ -149,39 +100,7 @@
       "location": "[parameters('aspLocation')]",
       "kind": "[if(variables('DeployToASE'), parameters('aseAppServicePlanKind'), parameters('appServicePlanKind'))]",
       "properties": "[if(variables('DeployToASE'), variables('ASPResourceProperties').WithASE, variables('ASPResourceProperties').WithoutASE)]",
-      "sku": "[if(variables('DeployToASE'), variables('defaultAppServicePlanSKUs').Isolated, variables('defaultAppServicePlanSKUs').NonASE)]",
-      "tags": {
-          "Environment": "[parameters('environmentTag')]",
-          "Parent Business": "[parameters('parentBusinessTag')]",
-          "Portfolio": "[parameters('portfolioTag')]",
-          "Product": "[parameters('productTag')]",
-          "Service": "[parameters('serviceTag')]",
-          "Service Line": "[parameters('serviceLineTag')]",
-          "Service Offering": "[parameters('serviceOfferingTag')]"
-      }
-    },
-    {
-      "type": "Microsoft.Web/serverfarms/providers/diagnosticSettings",
-      "condition": "[greater(length(parameters('workspaceId')), 0)]",
-      "apiVersion": "2017-05-01-preview",
-      "name": "[concat(parameters('appServicePlanName'),'/microsoft.insights/', parameters('settingName'))]",
-      "dependsOn": [
-        "[parameters('appServicePlanName')]"
-      ],
-      "properties": {
-        "name": "[parameters('settingName')]",
-        "workspaceId": "[parameters('workspaceId')]",
-        "metrics": [
-          {
-            "category": "AllMetrics",
-            "enabled": "[parameters('allMetricsSetting')]",
-            "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          }
-        ]
-      }
+      "sku": "[if(variables('DeployToASE'), variables('defaultAppServicePlanSKUs').Isolated, variables('defaultAppServicePlanSKUs').NonASE)]"
     }
   ],
   "outputs": {

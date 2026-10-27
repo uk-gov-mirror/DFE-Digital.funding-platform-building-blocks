@@ -2,29 +2,6 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentTag": {
-        "type": "string"
-    },
-    "parentBusinessTag": {
-        "type": "string"
-    },
-    "portfolioTag": {
-        "type": "string"
-    },
-    "productTag": {
-        "type": "string"
-    },
-    "serviceTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
-    "serviceLineTag": {
-        "type": "string"
-    },
-    "serviceOfferingTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
     "azureSearchName": {
       "type": "string",
       "minLength": 2,
@@ -70,17 +47,6 @@
       "metadata": {
         "description": "Partitions allow for scaling of document count as well as faster indexing by sharding your index over multiple Azure Search units."
       }
-    },
-    "resourceIdentity": {
-      "type": "string",
-      "allowedValues": [
-        "None",
-        "SystemAssigned"
-      ],
-      "defaultValue": "None",
-      "metadata": {
-        "description": "The identity type. Set this to 'SystemAssigned' in order to automatically create and assign an Azure Active Directory principal for the resource."
-      }
     }
   },
   "resources": [
@@ -89,20 +55,8 @@
       "name": "[parameters('azureSearchName')]",
       "type": "Microsoft.Search/searchServices",
       "location": "[resourceGroup().location]",
-      "tags": {
-          "Environment": "[parameters('environmentTag')]",
-          "Parent Business": "[parameters('parentBusinessTag')]",
-          "Portfolio": "[parameters('portfolioTag')]",
-          "Product": "[parameters('productTag')]",
-          "Service": "[parameters('serviceTag')]",
-          "Service Line": "[parameters('serviceLineTag')]",
-          "Service Offering": "[parameters('serviceOfferingTag')]"
-      },
       "sku": {
         "name": "[toLower(parameters('azureSearchSku'))]"
-      },
-      "identity": {
-         "type": "[parameters('resourceIdentity')]"
       },
       "properties": {
         "replicaCount": "[parameters('azureSearchReplicaCount')]",

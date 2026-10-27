@@ -2,34 +2,15 @@
     "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "environmentTag": {
-            "type": "string"
-        },
-        "parentBusinessTag": {
-            "type": "string"
-        },
-        "portfolioTag": {
-            "type": "string"
-        },
-        "productTag": {
-            "type": "string"
-        },
-        "serviceTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
-        "serviceLineTag": {
-            "type": "string"
-        },
-        "serviceOfferingTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
         "logAnalyticsName": {
             "type": "String"
         },
         "logAnalyticsLocation": {
             "type": "string",
+            "allowedValues": [
+                "North Europe",
+                "West Europe"
+            ],
             "defaultValue": "West Europe"
         },
         "logAnalyticsSku": {
@@ -53,15 +34,6 @@
             "apiVersion": "2017-03-15-preview",
             "name": "[parameters('logAnalyticsName')]",
             "location": "[parameters('logAnalyticsLocation')]",
-            "tags": {
-                "Environment": "[parameters('environmentTag')]",
-                "Parent Business": "[parameters('parentBusinessTag')]",
-                "Portfolio": "[parameters('portfolioTag')]",
-                "Product": "[parameters('productTag')]",
-                "Service": "[parameters('serviceTag')]",
-                "Service Line": "[parameters('serviceLineTag')]",
-                "Service Offering": "[parameters('serviceOfferingTag')]"
-            },
             "properties": {
                 "sku": {
                     "name": "[parameters('logAnalyticsSku')]"

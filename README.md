@@ -1,12 +1,10 @@
 # Platform Building Blocks: Styles and Conventions
 
 ## Table of contents
-- [Platform Building Blocks: Styles and Conventions](#platform-building-blocks-styles-and-conventions)
-  - [Table of contents](#table-of-contents)
-    - [Usage](#usage)
-  - [Branching](#branching)
-  - [Resource naming and parameter metadata description properties](#resource-naming-and-parameter-metadata-description-properties)
-  - [Property name formatting](#property-name-formatting)
+1. [Usage](#Usage)
+2. [Branching](#Branching)
+3. [Resource naming and parameter metadata description properties](#Resource-naming-and-parameter-metadata-description-properties)
+4. [Property name formatting](#Property-name-formatting)
 
 ### Usage
 
@@ -19,11 +17,11 @@
 
     ```json
     "variables": {
-            "deploymentUrlBase": "https://raw.githubusercontent.com/DFE-Digital/funding-platform-building-blocks/main/templates/"
+            "deploymentUrlBase": "https://raw.githubusercontent.com/SkillsFundingAgency/funding-platform-building-blocks/master/templates/"
     }
     ```
 
-3. Select the Azure Resource template you wish to use, (eg. https://raw.githubusercontent.com/DFE-Digital/funding-platform-building-blocks/main/templates/app-service.json) by setting the concatenation of the deploymentUrlBase variable and the file name as the uri of the templateLink property as follows:
+3. Select the Azure Resource template you wish to use, (eg. https://raw.githubusercontent.com/SkillsFundingAgency/funding-platform-building-blocks/master/templates/app-service.json) by setting the concatenation of the deploymentUrlBase variable and the file name as the uri of the templateLink property as follows:
 
     ```json
     {

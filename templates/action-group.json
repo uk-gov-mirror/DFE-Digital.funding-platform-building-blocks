@@ -2,29 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "environmentTag": {
-            "type": "string"
-        },
-        "parentBusinessTag": {
-            "type": "string"
-        },
-        "portfolioTag": {
-            "type": "string"
-        },
-        "productTag": {
-            "type": "string"
-        },
-        "serviceTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
-        "serviceLineTag": {
-            "type": "string"
-        },
-        "serviceOfferingTag": {
-            "type": "string",
-            "defaultValue": "[parameters('productTag')]"
-        },
         "actionGroupName": {
             "type": "string",
             "metadata": {
@@ -78,7 +55,7 @@
                 "name": "[parameters('emailActionName')]",
                 "emailAddress": "[parameters('emailAddress')]",
                 "status": "[parameters('emailReceiversStatus')]",
-                "useCommonAlertSchema": true
+                "useCommonAlertSchema": false
             }
         ],
         "webhookReciever": "[if(greater(length(parameters('webhookReceiverName')),0), variables('webhookConfiguration'), json('[]'))]",
@@ -90,15 +67,6 @@
             "apiVersion": "2019-06-01",
             "name": "[parameters('actionGroupName')]",
             "location": "Global",
-            "tags": {
-                "Environment": "[parameters('environmentTag')]",
-                "Parent Business": "[parameters('parentBusinessTag')]",
-                "Portfolio": "[parameters('portfolioTag')]",
-                "Product": "[parameters('productTag')]",
-                "Service": "[parameters('serviceTag')]",
-                "Service Line": "[parameters('serviceLineTag')]",
-                "Service Offering": "[parameters('serviceOfferingTag')]"
-            },
             "properties": {
                 "groupShortName": "[parameters('actionGroupShortName')]",
                 "enabled": true,

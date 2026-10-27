@@ -2,29 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentTag": {
-        "type": "string"
-    },
-    "parentBusinessTag": {
-        "type": "string"
-    },
-    "portfolioTag": {
-        "type": "string"
-    },
-    "productTag": {
-        "type": "string"
-    },
-    "serviceTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
-    "serviceLineTag": {
-        "type": "string"
-    },
-    "serviceOfferingTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
     "databaseName": {
       "type": "string"
     },
@@ -57,10 +34,6 @@
       ]
     },
     "serverlessMinCapacity": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "serverlessMaxCapacity": {
       "type": "string",
       "defaultValue": ""
     },
@@ -113,27 +86,16 @@
   },
   "variables": {
     "deployToElasticPool": "[greater(length(parameters('elasticPoolName')), 0)]",
-    "deployProvisionedVCore": "[equals(parameters('databaseTier'), 'GeneralPurpose')]",
     "databaseSettings": {
-      "vCoreSku": {
-        "sku": {
-          "name": "[parameters('databaseSkuName')]",
-          "tier": "[parameters('databaseTier')]",
-          "capacity": "[parameters('serverlessMaxCapacity')]"
-        },
-        "properties": {
-          "maxSizeBytes": "[parameters('databaseSizeBytes')]",
-          "minCapacity": "[parameters('serverlessMinCapacity')]",
-          "autoPauseDelay": "[parameters('serverlessAutoPauseDelay')]"
-        }
-      },
       "nonElasticPool": {
         "sku": {
           "name": "[parameters('databaseSkuName')]",
           "tier": "[parameters('databaseTier')]"
         },
         "properties": {
-          "maxSizeBytes": "[parameters('databaseSizeBytes')]"
+          "maxSizeBytes": "[parameters('databaseSizeBytes')]",
+          "minCapacity": "[parameters('serverlessMinCapacity')]",
+          "autoPauseDelay": "[parameters('serverlessAutoPauseDelay')]"
         }
       },
       "elasticPool": {
@@ -163,17 +125,8 @@
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2017-10-01-preview",
       "location": "[resourceGroup().location]",
-      "sku": "[if(variables('deployToElasticPool'), variables('databaseSettings').elasticPool.sku, if(variables('deployProvisionedVCore'), variables('databaseSettings').vCoreSku.sku, variables('databaseSettings').nonElasticPool.sku))]",
-      "tags": {
-          "Environment": "[parameters('environmentTag')]",
-          "Parent Business": "[parameters('parentBusinessTag')]",
-          "Portfolio": "[parameters('portfolioTag')]",
-          "Product": "[parameters('productTag')]",
-          "Service": "[parameters('serviceTag')]",
-          "Service Line": "[parameters('serviceLineTag')]",
-          "Service Offering": "[parameters('serviceOfferingTag')]"
-      },
-      "properties": "[if(variables('deployToElasticPool'), variables('databaseSettings').elasticPool.properties, if(variables('deployProvisionedVCore'), variables('databaseSettings').vCoreSku.properties, variables('databaseSettings').nonElasticPool.properties))]",
+      "sku": "[if(variables('deployToElasticPool'), variables('databaseSettings').elasticPool.sku, variables('databaseSettings').nonElasticPool.sku)]",
+      "properties": "[if(variables('deployToElasticPool'), variables('databaseSettings').elasticPool.properties, variables('databaseSettings').nonElasticPool.properties)]",
       "resources": [
         {
           "name": "current",

@@ -1,30 +1,7 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "environmentTag": {
-        "type": "string"
-    },
-    "parentBusinessTag": {
-        "type": "string"
-    },
-    "portfolioTag": {
-        "type": "string"
-    },
-    "productTag": {
-        "type": "string"
-    },
-    "serviceTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
-    "serviceLineTag": {
-        "type": "string"
-    },
-    "serviceOfferingTag": {
-        "type": "string",
-        "defaultValue": "[parameters('productTag')]"
-    },
     "storageAccountName": {
       "type": "string",
       "metadata": {
@@ -76,13 +53,6 @@
         "description": "A list of subnet resource ids."
       }
     },
-    "allowedIpAddressesList": {
-      "type": "array",
-      "defaultValue": [],
-      "metadata": {
-        "description": "A list of allowed IPs"
-      }
-    },
     "enableCors": {
       "type": "string",
       "defaultValue": "False",
@@ -125,77 +95,13 @@
       "allowedValues": [
         "TLS1_0",
         "TLS1_0",
-        "TLS1_2",
-        "TLS1_3"
+        "TLS1_2"
       ]
-    },
-    "allowBlobPublicAccess": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Allow or disable public access to all blobs and containers in the storage account. Individual containers access levels must also be set to Blob/Contaienr to be accessible anonymously. Defaults to true for backwards compatibility with existing projects."
-      }
-    },
-    "settingName": {
-     "type": "String",
-    "defaultvalue": "StorageAccDiagSettings",
-    "metadata": {
-        "description": "The name of the diagnostic setting"
-      }
-    },    
-    "workspaceId": {
-      "type": "String",
-      "defaultValue": "",
-      "metadata": {
-        "description": "ResourceID of the Log Analytics workspace in which resource logs should be saved."
-      }
-    },
-    "TransactionSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-         "description": "All Metrics diagnostic setting"
-       }
-    },
-    "BlobTransactionSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-        "description": "All Metrics diagnostic setting"
-      }
-    },
-    "BlobStorageReadSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-        "description": "Blob Storage Read diagnostic setting"
-      }
-    },
-    "BlobStorageWriteSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-        "description": "Blob Storage Write diagnostic setting"
-      }
-    },
-    "BlobStorageDeleteSetting": {
-      "type": "bool",
-      "defaultvalue": false,
-      "metadata": {
-        "description": "Blob Storage Delete diagnostic setting"
-      }
-    },
-    "retentionPolicyEnabled": {
-      "type": "bool",
-      "defaultValue": true
-    },
-    "retentionPolicyDays": {
-      "type": "string",
-      "defaultValue": "30"
     }
   },
   "variables": {
-     "virtualNetworkRules": {
+    "networkAclObject": {
+      "bypass": "Logging, Metrics",
       "copy": [
         {
           "name": "virtualNetworkRules",
@@ -205,24 +111,7 @@
             "action": "Allow"
           }
         }
-      ]
-    },
-    "ipRules": {
-      "copy": [
-        {
-          "name": "ipRules",
-          "count": "[if(greater(length(parameters('allowedIpAddressesList')), 0), length(parameters('allowedIpAddressesList')), 1)]",
-          "input": {
-            "value": "[if(greater(length(parameters('allowedIpAddressesList')), 0), parameters('allowedIpAddressesList')[copyIndex('ipRules')], json('null'))]",
-            "action": "Allow"
-          }
-        }
-      ]
-    },
-    "networkAclObject": {
-      "bypass": "Logging, Metrics",
-      "virtualNetworkRules": "[if(greater(length(parameters('subnetResourceIdList')), 0), variables('virtualNetworkRules').virtualNetworkRules, json('null'))]",
-      "ipRules": "[if(greater(length(parameters('allowedIpAddressesList')), 0), variables('ipRules').ipRules, json('null'))]",
+      ],
       "defaultAction": "Deny"
     }
   },
@@ -236,15 +125,7 @@
         "name": "[parameters('accountType')]"
       },
       "kind": "[parameters('storageKind')]",
-      "tags": {
-          "Environment": "[parameters('environmentTag')]",
-          "Parent Business": "[parameters('parentBusinessTag')]",
-          "Portfolio": "[parameters('portfolioTag')]",
-          "Product": "[parameters('productTag')]",
-          "Service": "[parameters('serviceTag')]",
-          "Service Line": "[parameters('serviceLineTag')]",
-          "Service Offering": "[parameters('serviceOfferingTag')]"
-      },
+      "tags": {},
       "properties": {
         "encryption": {
           "services": {
@@ -258,7 +139,6 @@
           "keySource": "Microsoft.Storage"
         },
         "accessTier": "[if(empty(parameters('accessTier')), json('null'), parameters('accessTier'))]",
-        "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]",
         "supportsHttpsTrafficOnly": true,
         "minimumTlsVersion": "[parameters('minimumTlsVersion')]",
         "networkAcls": "[if(greater(length(parameters('subnetResourceIdList')), 0), variables('networkAclObject'), json('null'))]"
@@ -272,7 +152,6 @@
             "dependsOn": [
               "[parameters('storageAccountName')]"
             ],
-            
             "properties": {
               "cors": {
                 "corsRules": [
@@ -289,78 +168,6 @@
             "resources": []
           }
         ]
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/providers/diagnosticSettings",
-      "condition": "[greater(length(parameters('workspaceId')), 0)]",
-      "apiVersion": "2021-05-01-preview",
-      "name": "[concat(parameters('storageAccountName'),'/microsoft.insights/', parameters('settingName'))]",
-      "dependsOn": [
-          "[parameters('storageAccountName')]"
-      ],
-      "properties": {
-      "name": "[parameters('settingName')]",
-      "workspaceId": "[parameters('workspaceId')]",
-      "metrics": [
-            {
-              "category": "Transaction",
-              "enabled": "[parameters('TransactionSetting')]",
-              "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/providers/diagnosticSettings",
-      "condition": "[greater(length(parameters('workspaceId')), 0)]",
-      "apiVersion": "2021-05-01-preview",
-      "name": "[concat(parameters('storageAccountName'),'/default/microsoft.insights/', parameters('settingName'))]",
-      "dependsOn": [
-          "[parameters('storageAccountName')]"
-      ],
-      "properties": {
-      "name": "[parameters('settingName')]",
-      "workspaceId": "[parameters('workspaceId')]",
-        "logs": [
-          {
-            "category": "StorageRead",
-            "enabled": "[parameters('BlobStorageReadSetting')]",
-            "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          },
-          {
-            "category": "StorageWrite",
-            "enabled": "[parameters('BlobStorageWriteSetting')]",
-            "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          },
-          {
-            "category": "StorageDelete",
-            "enabled": "[parameters('BlobStorageDeleteSetting')]",
-            "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          }
-        ],
-        "metrics": [
-          {
-            "category": "Transaction",
-            "enabled": "[parameters('BlobTransactionSetting')]",
-            "retentionPolicy": {
-              "enabled": "[parameters('retentionPolicyEnabled')]",
-              "days": "[parameters('retentionPolicyDays')]"
-            }
-          }
-        ]
-      }
     }
   ],
   "outputs": {
